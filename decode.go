@@ -1,11 +1,12 @@
 package jwt
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"strings"
 	"time"
-	"encoding/base64"
-	"encoding/json"
+
 	"golang.org/x/crypto/ed25519"
 )
 
@@ -13,33 +14,33 @@ import (
 func Decode(token string) (data JWT, err error) {
 	// Split the JWT into it's sections (header, content, hash)
 	sections := strings.Split(token, ".")
-	if (len(sections) != 3) {
+	if len(sections) != 3 {
 		err = errors.New("jwt: Invalid token")
 		return
 	}
 	// Decode the sections individually using base64
 	header, err := base64.URLEncoding.DecodeString(sections[0])
-	if (err != nil) {
+	if err != nil {
 		return
 	}
 	content, err := base64.URLEncoding.DecodeString(sections[1])
-	if (err != nil) {
+	if err != nil {
 		return
 	}
 	hash, err := base64.URLEncoding.DecodeString(sections[2])
-	if (err != nil) {
+	if err != nil {
 		return
 	}
 	// Create variables for header and content data
 	var (
-		headerStruct JWTHeader
-		contentStruct JWTContent
+		headerStruct  Header
+		contentStruct Content
 	)
 	// Decode header and content into structs
 	json.Unmarshal(header, &headerStruct)
 	json.Unmarshal(content, &contentStruct)
 	// Validate content of header and content
-	if (validateData(sections[0], sections[1], hash) && validateContent(contentStruct)) {
+	if validateData(sections[0], sections[1], hash) && validateContent(contentStruct) {
 		data.Valid = true
 	} else {
 		data.Valid = false
@@ -61,35 +62,35 @@ func validateData(header string, content string, hash []byte) (valid bool) {
 }
 
 // Validate the actual content of the JWT by checking issuer, expiry date, ...
-func validateContent(content JWTContent) (valid bool) {
+func validateContent(content Content) (valid bool) {
 	// Parse expiry date
 	exp := time.Unix(content.Exp, 0)
 	// Check if token expired
-	if (exp.Before(time.Now())) {
+	if exp.Before(time.Now()) {
 		valid = false
 		return
 	}
 	// Parse not before
 	nbf := time.Unix(content.Nbf, 0)
 	// Check if token is already valid
-	if (nbf.After(time.Now())) {
+	if nbf.After(time.Now()) {
 		valid = false
 		return
 	}
 	// Check if we issued the token
-	if (content.Iss != "BtS") {
+	if content.Iss != "BtS" {
 		valid = false
 		return
 	}
 	// Parse Issued At
 	iat := time.Unix(content.Iat, 0)
 	// Check if the token was issued within the last 7 days
-	if (time.Since(iat).Seconds() > 604800.0) {
+	if time.Since(iat).Seconds() > 604800.0 {
 		valid = false
 		return
 	}
 	// Check if the token is on our blacklist
-	if (content.Jti == "blacklist") {
+	if content.Jti == "blacklist" {
 		valid = false
 		return
 	}

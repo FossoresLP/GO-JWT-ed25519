@@ -6,13 +6,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fossoreslp/go.uuid"
+	"github.com/satori/go.uuid"
 	"golang.org/x/crypto/ed25519"
 )
 
-func Encode(content JWTContent) (token string) {
+// Encode a struct of type JWTContent to a JSON web token string
+func Encode(content Content) (token string) {
 	var data JWT
-	data.Header = JWTHeader{Alg: "ed25519", Typ: "JWT"}
+	data.Header = Header{Alg: "ed25519", Typ: "JWT"}
 	content.Iss = "BtS"
 	content.Iat = time.Now().Unix()
 	content.Jti = uuid.NewV4().String()

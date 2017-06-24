@@ -1,11 +1,13 @@
 package jwt
 
-type JWTHeader struct {
+// Header contains the header data of a JSON web token
+type Header struct {
 	Typ string
 	Alg string
 }
 
-type JWTContent struct {
+// Content contains the main content of a JSON web token
+type Content struct {
 	Iss string
 	Sub string
 	Aud string
@@ -15,9 +17,10 @@ type JWTContent struct {
 	Jti string
 }
 
+// JWT contains the header and content of a JSON web token as well booleans indicating the validity of the token
 type JWT struct {
-	Header JWTHeader
-	Content JWTContent
-	Valid bool
+	Header  Header
+	Content Content
+	Valid   bool
 	Invalid [2]bool
 }
