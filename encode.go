@@ -1,41 +1,80 @@
 package jwt
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"strings"
 	"time"
 
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/ed25519"
 )
 
-// Encode a struct of type JWTContent to a JSON web token string
-func Encode(content Content) (token string) {
-	var data JWT
+// New JWT for the subject
+func New(sub string) (data JWT) {
 	data.Header = Header{Alg: "ed25519", Typ: "JWT"}
-	content.Iss = "BtS"
-	content.Iat = time.Now().Unix()
-	content.Jti = uuid.NewV4().String()
-	content.Aud = "ChatClient"
-	content.Exp = time.Now().Add(time.Duration(604800) * time.Second).Unix()
-	content.Nbf = time.Now().Unix()
-	data.Content = content
-	header, err := json.Marshal(&data.Header)
-	var b64header string
-	if err == nil {
-		b64header = base64.URLEncoding.EncodeToString(header)
+	data.Content.Jti = uuid.NewV4().String()
+	data.Content.Exp = time.Now().Add(time.Duration(86400) * time.Second).Unix()
+	data.Content.Nbf = time.Now().Add(time.Duration(-60) * time.Second).Unix()
+	data.Content.Sub = sub
+	return
+}
+
+// Encode a JWT to a byte slice
+func (t *JWT) Encode() (result []byte, err error) {
+	content, err := encode(&t.Content)
+	if err != nil {
+		return
 	}
-	jsonContent, err := json.Marshal(&data.Content)
-	var b64content string
-	if err == nil {
-		b64content = base64.URLEncoding.EncodeToString(jsonContent)
+	header, err := encode(&t.Header)
+	if err != nil {
+		return
 	}
-	if b64header != "" && b64content != "" {
-		tokenData := strings.Join([]string{b64header, b64content}, ".")
-		hash := ed25519.Sign(keys.PrivateKey, []byte(tokenData))
-		b64hash := base64.URLEncoding.EncodeToString(hash)
-		token = strings.Join([]string{b64header, b64content, b64hash}, ".")
+	hash, err := b64encode(ed25519.Sign(keys.PrivateKey, join(header, content)))
+	if err != nil {
+		return
+	}
+	result = join(header, content, hash)
+	return
+}
+
+func b64encode(data []byte) (out []byte, err error) {
+	encodedData := &bytes.Buffer{}
+	encoder := base64.NewEncoder(base64.URLEncoding, encodedData)
+	_, err = encoder.Write(data)
+	if err != nil {
+		return
+	}
+	encoder.Close()
+	out = encodedData.Bytes()
+	return
+}
+
+func encode(data interface{}) (out []byte, err error) {
+	json, err := json.Marshal(data)
+	if err != nil {
+		return
+	}
+	out, err = b64encode(json)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func join(b ...[]byte) (result []byte) {
+	if len(b) <= 0 {
+		return
+	}
+	result = b[0]
+	if len(b) == 1 {
+		return
+	}
+	for i := range b {
+		if i > 0 {
+			result = append(result, '.')
+			result = append(result, b[i]...)
+		}
 	}
 	return
 }
