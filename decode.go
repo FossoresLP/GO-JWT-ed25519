@@ -19,15 +19,15 @@ func FromString(token string) (data JWT, err error) {
 		return
 	}
 	// Decode the sections individually using base64
-	header, err := base64.URLEncoding.DecodeString(sections[0])
+	header, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(sections[0])
 	if err != nil {
 		return
 	}
-	content, err := base64.URLEncoding.DecodeString(sections[1])
+	content, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(sections[1])
 	if err != nil {
 		return
 	}
-	hash, err := base64.URLEncoding.DecodeString(sections[2])
+	hash, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(sections[2])
 	if err != nil {
 		return
 	}
@@ -37,8 +37,14 @@ func FromString(token string) (data JWT, err error) {
 		contentStruct Content
 	)
 	// Decode header and content into structs
-	json.Unmarshal(header, &headerStruct)
-	json.Unmarshal(content, &contentStruct)
+	err = json.Unmarshal(header, &headerStruct)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(content, &contentStruct)
+	if err != nil {
+		return
+	}
 	// Validate content of header and content
 	data.Header = headerStruct
 	data.Content = contentStruct

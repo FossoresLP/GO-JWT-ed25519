@@ -40,7 +40,7 @@ func (t *JWT) Encode() (result []byte, err error) {
 
 func b64encode(data []byte) (out []byte, err error) {
 	encodedData := &bytes.Buffer{}
-	encoder := base64.NewEncoder(base64.URLEncoding, encodedData)
+	encoder := base64.NewEncoder(base64.URLEncoding.WithPadding(base64.NoPadding), encodedData)
 	_, err = encoder.Write(data)
 	if err != nil {
 		return
