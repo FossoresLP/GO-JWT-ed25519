@@ -6,14 +6,17 @@ import (
 	"encoding/json"
 	"time"
 
-	uuid "github.com/satori/go.uuid"
+	"github.com/fossoreslp/go-uuid-v4"
 	"golang.org/x/crypto/ed25519"
 )
 
 // New JWT for the subject
-func New(sub string) (data JWT) {
+func New(sub uuid.UUID) (data JWT, err error) {
 	data.Header = Header{Alg: "ed25519", Typ: "JWT"}
-	data.Content.Jti = uuid.NewV4().String()
+	data.Content.Jti, err = uuid.New()
+	if err != nil {
+		return
+	}
 	data.Content.Exp = time.Now().Add(time.Duration(86400) * time.Second).Unix()
 	data.Content.Nbf = time.Now().Add(time.Duration(-60) * time.Second).Unix()
 	data.Content.Sub = sub

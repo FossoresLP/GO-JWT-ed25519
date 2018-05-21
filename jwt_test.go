@@ -1,39 +1,42 @@
 package jwt
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/satori/go.uuid"
+	"github.com/fossoreslp/go-uuid-v4"
 )
 
 var token []byte
 
 func TestEnc(t *testing.T) {
-	jwt := New(uuid.NewV4().String())
+	id, err := uuid.New()
+	if err != nil {
+		t.Errorf("UUID generation failed. This is not a fatal error. Cause: %s\n", err.Error())
+	}
+	jwt, err := New(id)
+	if err != nil {
+		t.Fatalf("Failed to create new JWT: %s", err.Error())
+	}
 	enc, err := jwt.Encode()
 	if err != nil {
-		fmt.Println(err.Error())
-		t.FailNow()
+		t.Fatalf("Failed to encode JWT: %s", err.Error())
 	}
-	fmt.Println(string(enc))
+	t.Log("Encoded JWT: " + string(enc) + "\n")
 	token = enc
 }
 
 func TestDec(t *testing.T) {
 	data, err := FromString(string(token))
 	if err != nil {
-		fmt.Println(err.Error())
-		t.FailNow()
+		t.Fatalf("Failed to decode JWT: %s", err.Error())
 	}
-	fmt.Println(data)
+	t.Logf("Decoded JWT: %+v\n", data)
 }
 
-func TestKeymgmt(t *testing.T) {
-	data, err := FromString("eyJUeXAiOiJKV1QiLCJBbGciOiJlZDI1NTE5In0=.eyJJc3MiOiJCdFMiLCJTdWIiOiI2Mzc1YWNhNy00YWI0LTQ3YTUtYmU0ZC03YThlMGE0ZDZkYTAiLCJBdWQiOiJDaGF0Q2xpZW50IiwiRXhwIjoxNDk4MzExNDg3LCJOYmYiOjE0OTc3MDY2ODcsIklhdCI6MTQ5NzcwNjY4NywiSnRpIjoiNDUyMTViNDQtMzZiMi00OGIzLTg0NzItNWU3NmZjNjU0M2NlIn0=.VlD_PHeUm6xJvk-lCP4QUIhNrw5YlR3rz13zodO7-fiAIs6mUwRnxRteTbTTlsWXDE0tKtvBI8xm-_vzPqSvCQ==")
+func TestKeymanagement(t *testing.T) {
+	data, err := FromString("eyJ0eXAiOiJKV1QiLCJhbGciOiJlZDI1NTE5In0.eyJzdWIiOiIxOWQ1MmIyZS05ZWU3LTRmYmEtYjVkMS1kOWQzZmU0MzVkYmYiLCJleHAiOjE1MjcwMDIwNDYsIm5iZiI6MTUyNjkxNTU4NiwianRpIjoiYjMxYjFkMDQtMDhlYi00ZDNjLWE3ZTktYTJkYTA2YjE2NGVmIn0.LfLO6DPTCJC6RGk0Ar3ufnx_wdmVr_Bub3ZhwsS9YASC6CDxX-3i43efhMy9QUt86rLCX75JSIH1h23GBr-nBw")
 	if err != nil {
-		fmt.Println(err.Error())
-		t.FailNow()
+		t.Errorf("Key management not working: %s\n", err.Error())
 	}
-	fmt.Println(data)
+	t.Logf("Decoded JWT hardcoded into test: %+v\n", data)
 }
