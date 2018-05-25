@@ -10,10 +10,11 @@ type Header struct {
 
 // Content contains the main content of a JSON web token
 type Content struct {
-	Sub uuid.UUID `json:"sub"`
-	Exp int64     `json:"exp"`
-	Nbf int64     `json:"nbf"`
-	Jti uuid.UUID `json:"jti"`
+	Sub   uuid.UUID `json:"sub"`
+	Exp   int64     `json:"exp"`
+	Nbf   int64     `json:"nbf"`
+	Jti   uuid.UUID `json:"jti"`
+	KeyID uuid.UUID `json:"kid"`
 }
 
 // JWT contains the header and content of a JSON web token as well booleans indicating the validity of the token
