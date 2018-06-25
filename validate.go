@@ -6,26 +6,26 @@ import (
 	"golang.org/x/crypto/ed25519"
 )
 
-// Valid returns whether the JWT matches the hash
-func (jwt *JWT) Valid(key ed25519.PublicKey) (bool, error) {
+// Validate returns an error when the hash does not match the content
+func (jwt *JWT) Validate(key ed25519.PublicKey) error {
 	if jwt.Header.Alg != "ed25519" {
-		return false, errors.New("could not validate JWT - algorithm not supported")
+		return errors.New("could not validate JWT - algorithm not supported")
 	}
 
 	// Encode header and content
 	header, err := encode(jwt.Header)
 	if err != nil {
-		return false, err
+		return err
 	}
 	content, err := encode(jwt.Content)
 	if err != nil {
-		return false, err
+		return err
 	}
 	data := join(header, content)
 
 	// Check the hash using the public key
 	if !ed25519.Verify(key, data, jwt.Hash) {
-		return false, errors.New("hash does not match content")
+		return errors.New("hash does not match content")
 	}
-	return true, nil
+	return nil
 }
