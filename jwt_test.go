@@ -3,17 +3,21 @@ package jwt
 import (
 	"testing"
 
-	"github.com/fossoreslp/go-uuid-v4"
+	"golang.org/x/crypto/ed25519"
 )
 
 var token []byte
+var decoded JWT
+var publicKey ed25519.PublicKey
 
 func TestEnc(t *testing.T) {
-	id, err := uuid.New()
+	public, priv, err := ed25519.GenerateKey(nil)
 	if err != nil {
-		t.Errorf("UUID generation failed. This is not a fatal error. Cause: %s\n", err.Error())
+		t.Fatalf("Failed to generate keys for testing: %s", err.Error())
 	}
-	jwt, err := New(id)
+	publicKey = public
+	Setup(priv)
+	jwt, err := New("hello world")
 	if err != nil {
 		t.Fatalf("Failed to create new JWT: %s", err.Error())
 	}
@@ -26,17 +30,19 @@ func TestEnc(t *testing.T) {
 }
 
 func TestDec(t *testing.T) {
-	data, err := FromString(string(token))
+	dec, err := Decode(string(token))
 	if err != nil {
 		t.Fatalf("Failed to decode JWT: %s", err.Error())
 	}
-	t.Logf("Decoded JWT: %+v\n", data)
+	decoded = dec
+	if decoded.Content != "hello world" {
+		t.Fatal("Decoded content does not match original token")
+	}
 }
 
-func TestKeymanagement(t *testing.T) {
-	data, err := FromString("eyJ0eXAiOiJKV1QiLCJhbGciOiJlZDI1NTE5In0.eyJzdWIiOiIxOWQ1MmIyZS05ZWU3LTRmYmEtYjVkMS1kOWQzZmU0MzVkYmYiLCJleHAiOjE1MjcwMDIwNDYsIm5iZiI6MTUyNjkxNTU4NiwianRpIjoiYjMxYjFkMDQtMDhlYi00ZDNjLWE3ZTktYTJkYTA2YjE2NGVmIn0.LfLO6DPTCJC6RGk0Ar3ufnx_wdmVr_Bub3ZhwsS9YASC6CDxX-3i43efhMy9QUt86rLCX75JSIH1h23GBr-nBw")
+func TestValidation(t *testing.T) {
+	err := decoded.Validate(publicKey)
 	if err != nil {
-		t.Errorf("Key management not working: %s\n", err.Error())
+		t.Fatalf("Failed to validate JWT: %s", err.Error())
 	}
-	t.Logf("Decoded JWT hardcoded into test: %+v\n", data)
 }
