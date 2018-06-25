@@ -4,27 +4,23 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"time"
+	"errors"
 
-	"github.com/fossoreslp/go-uuid-v4"
 	"golang.org/x/crypto/ed25519"
 )
 
 // New JWT for the subject
-func New(sub uuid.UUID) (data JWT, err error) {
+func New(content interface{}) (data JWT, err error) {
 	data.Header = Header{Alg: "ed25519", Typ: "JWT"}
-	data.Content.Jti, err = uuid.New()
-	if err != nil {
-		return
-	}
-	data.Content.Exp = time.Now().Add(time.Duration(86400) * time.Second).Unix()
-	data.Content.Nbf = time.Now().Add(time.Duration(-60) * time.Second).Unix()
-	data.Content.Sub = sub
+	data.Content = content
 	return
 }
 
 // Encode a JWT to a byte slice
 func (t *JWT) Encode() (result []byte, err error) {
+	if !setup {
+		return nil, errors.New("Initialize with public and private key before encoding")
+	}
 	content, err := encode(&t.Content)
 	if err != nil {
 		return
@@ -33,7 +29,7 @@ func (t *JWT) Encode() (result []byte, err error) {
 	if err != nil {
 		return
 	}
-	hash, err := b64encode(ed25519.Sign(keys.PrivateKey, join(header, content)))
+	hash, err := b64encode(ed25519.Sign(privateKey, join(header, content)))
 	if err != nil {
 		return
 	}

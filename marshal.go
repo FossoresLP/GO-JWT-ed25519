@@ -7,7 +7,7 @@ func (jwt JWT) MarshalText() ([]byte, error) {
 
 // UnmarshalText provides encoding.TextUnmarshaler
 func (jwt *JWT) UnmarshalText(in []byte) error {
-	token, err := FromString(string(in))
+	token, err := Decode(string(in))
 	if err != nil {
 		return err
 	}
@@ -22,7 +22,7 @@ func (jwt JWT) MarshalBinary() ([]byte, error) {
 
 // UnmarshalBinary provides encoding.BinaryUnmarshaler
 func (jwt *JWT) UnmarshalBinary(in []byte) error {
-	token, err := FromString(string(in))
+	token, err := Decode(string(in))
 	if err != nil {
 		return err
 	}
