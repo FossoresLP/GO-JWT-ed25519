@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"errors"
+	"fmt"
 
 	"golang.org/x/crypto/ed25519"
 )
@@ -9,7 +10,7 @@ import (
 // Validate returns an error when the hash does not match the content
 func (jwt *JWT) Validate(key ed25519.PublicKey) error {
 	if jwt.Header.Alg != "ed25519" {
-		return errors.New("could not validate JWT - algorithm not supported")
+		return fmt.Errorf("could not validate JWT - algorithm %s not supported", jwt.Header.Alg)
 	}
 
 	// Encode header and content
