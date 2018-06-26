@@ -50,10 +50,10 @@ jwt.Decode(yourencodedjwt) (JWT, error)
 
 ### Validating the hash
 
-When decoding a JWT, it is not automatically validated. You will have to call `Validate` manually.
+When decoding a JWT, it is not automatically validated. You will have to call `Validate` on it manually.
 
 ```go
-yourjwt.Validate() (error)
+yourjwt.Validate(publicKey ed25519.PublicKey) (error)
 ```
 
-Keep in mind that this function only validates the hash. It's your job to validate the payload as this package does not make any assumptions about the contents.
+Keep in mind that this function only validates the hash and checks if the token is valid an the current point in time if `exp` and/or `nbf` are set.
