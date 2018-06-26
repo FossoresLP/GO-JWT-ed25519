@@ -34,9 +34,10 @@ jwt.New(content Interface) (JWT, error)
 
 ### Encoding a JWT
 
-To actually use a JWT you will have to encode it. This is done by simply calling `Encode` on the JWT you created beforehand.
+To actually use a JWT you will have to encode it. This is done by simply calling `Encode` on the JWT you created. You will need to provide a private key using `Setup` beforehand.
 
 ```go
+jwt.Setup(key ed25519.PrivateKey)
 yourjwt.Encode() (string, error)
 ```
 
@@ -53,7 +54,7 @@ jwt.Decode(yourencodedjwt) (JWT, error)
 When decoding a JWT, it is not automatically validated. You will have to call `Validate` on it manually.
 
 ```go
-yourjwt.Validate(publicKey ed25519.PublicKey) (error)
+yourjwt.Validate(key ed25519.PublicKey) (error)
 ```
 
 Keep in mind that this function only validates the hash and checks if the token is valid an the current point in time if `exp` and/or `nbf` are set.
