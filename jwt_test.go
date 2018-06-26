@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"testing"
+	"time"
 
 	"golang.org/x/crypto/ed25519"
 )
@@ -9,6 +10,7 @@ import (
 var token []byte
 var decoded JWT
 var publicKey ed25519.PublicKey
+var content map[string]interface{}
 
 func TestEnc(t *testing.T) {
 	public, priv, err := ed25519.GenerateKey(nil)
@@ -17,7 +19,12 @@ func TestEnc(t *testing.T) {
 	}
 	publicKey = public
 	Setup(priv)
-	jwt, err := New("hello world")
+	content = make(map[string]interface{})
+	content["test1"] = "Hello world"
+	content["test2"] = "Testing"
+	content["exp"] = time.Now().Add(10 * time.Minute)
+	content["nbf"] = time.Now()
+	jwt, err := New(content)
 	if err != nil {
 		t.Fatalf("Failed to create new JWT: %s", err.Error())
 	}
@@ -35,7 +42,8 @@ func TestDec(t *testing.T) {
 		t.Fatalf("Failed to decode JWT: %s", err.Error())
 	}
 	decoded = dec
-	if decoded.Content != "hello world" {
+	m := decoded.Content.(map[string]interface{})
+	if m["test1"] != content["test1"] {
 		t.Fatal("Decoded content does not match original token")
 	}
 }

@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"time"
 	"errors"
 	"fmt"
 
@@ -28,5 +29,19 @@ func (jwt *JWT) Validate(key ed25519.PublicKey) error {
 	if !ed25519.Verify(key, data, jwt.Hash) {
 		return errors.New("hash does not match content")
 	}
+
+	// Validate expiry and not before if they exist
+	m := jwt.Content.(map[string]interface{})
+	if exp, ok := m["exp"].(int64); ok {
+		if time.Unix(exp, 0).Before(time.Now()) {
+			return errors.New("jwt has expired")
+		}
+	}
+	if nbf, ok := m["nbf"].(int64); ok {
+		if time.Unix(nbf, 0).After(time.Now()) {
+			return errors.New("jwt is not valid, yet")
+		}
+	}
+
 	return nil
 }
