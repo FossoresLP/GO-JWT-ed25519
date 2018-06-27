@@ -49,8 +49,59 @@ func TestDec(t *testing.T) {
 }
 
 func TestValidation(t *testing.T) {
+	// Validate test JWT (should always be valid)
 	err := decoded.Validate(publicKey)
 	if err != nil {
 		t.Fatalf("Failed to validate JWT: %s", err.Error())
+	}
+
+	// Check that validation fails with wrong public key
+	wrongKey, _, err := ed25519.GenerateKey(nil)
+	if err != nil {
+		t.Fatalf("Failed to generate key for testing: %s", err.Error())
+	}
+	err = decoded.Validate(wrongKey)
+	if err == nil {
+		t.Fatalf("Validating succeded with invalid public key")
+	}
+
+	// Check validation of expiry
+	expired := make(map[string]interface{})
+	expired["exp"] = time.Now().Add(-10 * time.Minute).UTC().Unix()
+	expiredToken, err := New(expired)
+	if err != nil {
+		t.Fatalf("Failed to create token to validate expiry: %s", err.Error())
+	}
+	enc, err := expiredToken.Encode()
+	if err != nil {
+		t.Fatalf("Failed to encode token to validate expiry: %s", err.Error())
+	}
+	dec, err := Decode(string(enc))
+	if err != nil {
+		t.Fatalf("Failed to decode token to validate expiry: %s", err.Error())
+	}
+	err = dec.Validate(publicKey)
+	if err == nil || err.Error() != "jwt has expired" {
+		t.Fatalf("Expired token not detected by validate")
+	}
+
+	// Check validation of not before
+	nbf := make(map[string]interface{})
+	nbf["nbf"] = time.Now().Add(10 * time.Minute).UTC().Unix()
+	nbfToken, err := New(nbf)
+	if err != nil {
+		t.Fatalf("Failed to create token to validate not before: %s", err.Error())
+	}
+	enc, err = nbfToken.Encode()
+	if err != nil {
+		t.Fatalf("Failed to encode token to validate not before: %s", err.Error())
+	}
+	dec, err = Decode(string(enc))
+	if err != nil {
+		t.Fatalf("Failed to decode token to validate not before: %s", err.Error())
+	}
+	err = dec.Validate(publicKey)
+	if err == nil || err.Error() != "jwt is not valid, yet" {
+		t.Fatalf("Validate missed that token is not valid, yet")
 	}
 }

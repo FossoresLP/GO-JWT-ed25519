@@ -1,9 +1,10 @@
 package jwt
 
 import (
-	"time"
 	"errors"
 	"fmt"
+	"math"
+	"time"
 
 	"golang.org/x/crypto/ed25519"
 )
@@ -26,19 +27,19 @@ func (jwt *JWT) Validate(key ed25519.PublicKey) error {
 	data := join(header, content)
 
 	// Check the hash using the public key
-	if !ed25519.Verify(key, data, jwt.Hash) {
+	if jwt.Hash != nil && !ed25519.Verify(key, data, jwt.Hash) {
 		return errors.New("hash does not match content")
 	}
 
 	// Validate expiry and not before if they exist
 	m := jwt.Content.(map[string]interface{})
-	if exp, ok := m["exp"].(int64); ok {
-		if time.Unix(exp, 0).Before(time.Now()) {
+	if exp, ok := m["exp"].(float64); ok {
+		if time.Unix(int64(math.Round(exp)), 0).Before(time.Now()) {
 			return errors.New("jwt has expired")
 		}
 	}
-	if nbf, ok := m["nbf"].(int64); ok {
-		if time.Unix(nbf, 0).After(time.Now()) {
+	if nbf, ok := m["nbf"].(float64); ok {
+		if time.Unix(int64(math.Round(nbf)), 0).After(time.Now()) {
 			return errors.New("jwt is not valid, yet")
 		}
 	}

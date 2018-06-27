@@ -12,7 +12,7 @@ func Decode(token string) (data JWT, err error) {
 	// Split the JWT into it's sections (header, content, hash)
 	sections := strings.Split(token, ".")
 	if len(sections) != 3 {
-		err = errors.New("jwt: Invalid token")
+		err = errors.New("invalid token")
 		return
 	}
 
@@ -39,6 +39,10 @@ func Decode(token string) (data JWT, err error) {
 	// Decode third section to hash
 	data.Hash, err = base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(sections[2])
 	if err != nil {
+		return
+	}
+	if len(data.Hash) == 0 {
+		err = errors.New("empty hash is not allowed")
 		return
 	}
 
