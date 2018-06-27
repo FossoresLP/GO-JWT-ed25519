@@ -17,7 +17,7 @@ func Decode(token string) (data JWT, err error) {
 	}
 
 	// Decode first section to header
-	headerData, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(sections[0])
+	headerData, err := base64.RawURLEncoding.DecodeString(sections[0])
 	if err != nil {
 		return
 	}
@@ -27,7 +27,7 @@ func Decode(token string) (data JWT, err error) {
 	}
 
 	// Decode second section to content
-	contentData, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(sections[1])
+	contentData, err := base64.RawURLEncoding.DecodeString(sections[1])
 	if err != nil {
 		return
 	}
@@ -37,12 +37,8 @@ func Decode(token string) (data JWT, err error) {
 	}
 
 	// Decode third section to hash
-	data.Hash, err = base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(sections[2])
+	data.Hash, err = base64.RawURLEncoding.DecodeString(sections[2])
 	if err != nil {
-		return
-	}
-	if len(data.Hash) == 0 {
-		err = errors.New("empty hash is not allowed")
 		return
 	}
 

@@ -1,7 +1,6 @@
 package jwt
 
 import (
-	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -10,16 +9,14 @@ import (
 )
 
 // New JWT for the subject
-func New(content interface{}) (data JWT, err error) {
-	data.Header = Header{Alg: "ed25519", Typ: "JWT"}
-	data.Content = content
-	return
+func New(content interface{}) JWT {
+	return JWT{Header{Alg: "ed25519", Typ: "JWT"}, content, nil}
 }
 
 // Encode a JWT to a byte slice
 func (t *JWT) Encode() (result []byte, err error) {
 	if !setup {
-		return nil, errors.New("Initialize with public and private key before encoding")
+		return nil, errors.New("call setup with private key first")
 	}
 	content, err := encode(&t.Content)
 	if err != nil {
@@ -29,24 +26,15 @@ func (t *JWT) Encode() (result []byte, err error) {
 	if err != nil {
 		return
 	}
-	hash, err := b64encode(ed25519.Sign(privateKey, join(header, content)))
-	if err != nil {
-		return
-	}
+	hash := b64encode(ed25519.Sign(privateKey, join(header, content)))
 	result = join(header, content, hash)
 	return
 }
 
-func b64encode(data []byte) (out []byte, err error) {
-	encodedData := &bytes.Buffer{}
-	encoder := base64.NewEncoder(base64.URLEncoding.WithPadding(base64.NoPadding), encodedData)
-	_, err = encoder.Write(data)
-	if err != nil {
-		return
-	}
-	encoder.Close()
-	out = encodedData.Bytes()
-	return
+func b64encode(data []byte) []byte {
+	out := make([]byte, base64.RawURLEncoding.EncodedLen(len(data)))
+	base64.RawURLEncoding.Encode(out, data)
+	return out
 }
 
 func encode(data interface{}) (out []byte, err error) {
@@ -54,10 +42,7 @@ func encode(data interface{}) (out []byte, err error) {
 	if err != nil {
 		return
 	}
-	out, err = b64encode(json)
-	if err != nil {
-		return
-	}
+	out = b64encode(json)
 	return
 }
 

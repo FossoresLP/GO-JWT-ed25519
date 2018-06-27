@@ -1,0 +1,18 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.10
+    working_directory: /go/src/github.com/fossoreslp/go-jwt-ed25519
+    steps:
+      - checkout
+      - run: go get
+      - run:
+          name: Run unit tests
+          command: go test
+      - run:
+          name: Coverage
+          command: go test -cover
+      - run:
+          name: go vet
+          command: go vet
