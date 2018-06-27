@@ -8,12 +8,11 @@ jobs:
       - checkout
       - run: go get
       - run:
-        name: Run unit tests
+          name: Run unit tests
+          command: go test
       - run:
-        command: go test
+          name: Coverage
+          command: go test -cover
       - run:
-        name: Coverage
-        command: go test -cover
-      - run:
-        name: go vet
-        command: go vet
+          name: go vet
+          command: go vet
