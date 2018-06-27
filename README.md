@@ -1,6 +1,8 @@
 GO JSON Web Token using ed25519
 ===============================
 
+[![CircleCI branch](https://img.shields.io/circleci/project/github/FossoresLP/GO-JWT-ed25519/master.svg?style=flat-square)](https://circleci.com/gh/FossoresLP/GO-JWT-ed25519)
+
 This packages implements JSON Web Token as defined in [RFC 7519](https://tools.ietf.org/html/rfc7519) in Go using [ed25519](golang.org/x/crypto/ed25519)
 
 Data structures
