@@ -13,21 +13,22 @@ var publicKey ed25519.PublicKey
 var content map[string]interface{}
 
 func TestEnc(t *testing.T) {
+	content = make(map[string]interface{})
+	content["test1"] = "Hello world"
+	content["test2"] = "Testing"
+	content["exp"] = time.Now().Add(10 * time.Minute)
+	content["nbf"] = time.Now()
+	jwt := New(content)
+	_, err := jwt.Encode()
+	if err == nil || err.Error() != "call setup with private key first" {
+		t.Fatalf("Encode should fail due to missing private key")
+	}
 	public, priv, err := ed25519.GenerateKey(nil)
 	if err != nil {
 		t.Fatalf("Failed to generate keys for testing: %s", err.Error())
 	}
 	publicKey = public
 	Setup(priv)
-	content = make(map[string]interface{})
-	content["test1"] = "Hello world"
-	content["test2"] = "Testing"
-	content["exp"] = time.Now().Add(10 * time.Minute)
-	content["nbf"] = time.Now()
-	jwt, err := New(content)
-	if err != nil {
-		t.Fatalf("Failed to create new JWT: %s", err.Error())
-	}
 	enc, err := jwt.Encode()
 	if err != nil {
 		t.Fatalf("Failed to encode JWT: %s", err.Error())
@@ -68,10 +69,7 @@ func TestValidation(t *testing.T) {
 	// Check validation of expiry
 	expired := make(map[string]interface{})
 	expired["exp"] = time.Now().Add(-10 * time.Minute).UTC().Unix()
-	expiredToken, err := New(expired)
-	if err != nil {
-		t.Fatalf("Failed to create token to validate expiry: %s", err.Error())
-	}
+	expiredToken := New(expired)
 	enc, err := expiredToken.Encode()
 	if err != nil {
 		t.Fatalf("Failed to encode token to validate expiry: %s", err.Error())
@@ -88,10 +86,7 @@ func TestValidation(t *testing.T) {
 	// Check validation of not before
 	nbf := make(map[string]interface{})
 	nbf["nbf"] = time.Now().Add(10 * time.Minute).UTC().Unix()
-	nbfToken, err := New(nbf)
-	if err != nil {
-		t.Fatalf("Failed to create token to validate not before: %s", err.Error())
-	}
+	nbfToken := New(nbf)
 	enc, err = nbfToken.Encode()
 	if err != nil {
 		t.Fatalf("Failed to encode token to validate not before: %s", err.Error())
