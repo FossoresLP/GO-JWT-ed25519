@@ -41,6 +41,9 @@ func Decode(token string) (data JWT, err error) {
 	if err != nil {
 		return
 	}
+	if data.Hash == nil || len(data.Hash) < 1 || sections[2] == "" {
+		err = errors.New("hash may not be empty")
+	}
 
 	return
 }

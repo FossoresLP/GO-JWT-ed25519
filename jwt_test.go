@@ -97,6 +97,10 @@ func TestDec(t *testing.T) {
 	if err == nil {
 		t.Fatalf("Invalid base64 data accepted when decoding hash")
 	}
+	dec, err = Decode("eyJ0eXAiOiAiSldUIiwgImFsZyI6ICJlZDI1NTE5In0.IkhlbGxvIHdvcmxkISI.")
+	if err == nil {
+		t.Fatalf("Empty hash accepted: %v", dec.Hash)
+	}
 }
 
 func TestValidation(t *testing.T) {
