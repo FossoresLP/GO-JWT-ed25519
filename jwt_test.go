@@ -134,6 +134,18 @@ func TestValidation(t *testing.T) {
 		t.Fatalf("Validating succeded with invalid public key")
 	}
 
+	// Check that validation succeeds with unsupported content
+	token = JWT{Header{"JWT", "ed25519"}, "Hello world!", nil}
+	err = token.Validate(publicKey)
+	if err != nil {
+		t.Fatalf("Validation with unsupported content failed instead of ignoring content: %s", err.Error())
+	}
+	token = JWT{Header{"JWT", "ed25519"}, 1234567890, nil}
+	err = token.Validate(publicKey)
+	if err != nil {
+		t.Fatalf("Validation with unsupported content failed instead of ignoring content: %s", err.Error())
+	}
+
 	// Check validation of expiry
 	expired := make(map[string]interface{})
 	expired["exp"] = time.Now().Add(-10 * time.Minute).UTC().Unix()
