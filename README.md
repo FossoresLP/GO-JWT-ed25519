@@ -1,7 +1,11 @@
 GO JSON Web Token using ed25519
 ===============================
 
-[![CircleCI branch](https://img.shields.io/circleci/project/github/FossoresLP/GO-JWT-ed25519/master.svg?style=flat-square)](https://circleci.com/gh/FossoresLP/GO-JWT-ed25519)
+[![CircleCI](https://img.shields.io/circleci/project/github/FossoresLP/GO-JWT-ed25519/master.svg?style=flat-square)](https://circleci.com/gh/FossoresLP/GO-JWT-ed25519)
+[![Coveralls](https://img.shields.io/coveralls/github/FossoresLP/GO-JWT-ed25519/master.svg?style=flat-square)](https://coveralls.io/github/FossoresLP/GO-JWT-ed25519)
+[![Codacy](https://img.shields.io/codacy/grade/943c64e6d6ae481887224e6fe106a6a2.svg?style=flat-square)](https://www.codacy.com/app/FossoresLP/GO-JWT-ed25519)
+[![Licensed under: Boost Software License](https://img.shields.io/badge/style-BSL--1.0-red.svg?longCache=true&style=flat-square&label=License)](https://github.com/FossoresLP/GO-JWT-ed25519/blob/master/LICENSE.md)
+[![GoDoc](https://img.shields.io/badge/style-reference-blue.svg?longCache=true&style=flat-square&label=GoDoc)](https://godoc.org/github.com/FossoresLP/GO-JWT-ed25519)
 
 This packages implements JSON Web Token as defined in [RFC 7519](https://tools.ietf.org/html/rfc7519) in Go using [ed25519](golang.org/x/crypto/ed25519)
 
