@@ -172,3 +172,23 @@ func TestNewWithKeyIDAndKeyURL(t *testing.T) {
 		})
 	}
 }
+
+func Test_encodeHeader(t *testing.T) {
+	tests := []struct {
+		name string
+		h    Header
+		want []byte
+	}{
+		{"Normal", Header{Typ: "JWT", Alg: "EdDSA"}, []byte("eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9")},
+		{"WithKeyID", Header{Typ: "JWT", Alg: "EdDSA", Kid: "unique_key_id"}, []byte("eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSIsImtpZCI6InVuaXF1ZV9rZXlfaWQifQ")},
+		{"WithKeyURL", Header{Typ: "JWT", Alg: "EdDSA", Jku: "https://example.com/get_key"}, []byte("eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSIsImprdSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vZ2V0X2tleSJ9")},
+		{"WithKeyIDAndURL", Header{Typ: "JWT", Alg: "EdDSA", Kid: "unique_key_id", Jku: "https://example.com/get_key"}, []byte("eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSIsImtpZCI6InVuaXF1ZV9rZXlfaWQiLCJqa3UiOiJodHRwczovL2V4YW1wbGUuY29tL2dldF9rZXkifQ")},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := encodeHeader(tt.h); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("encodeHeader() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

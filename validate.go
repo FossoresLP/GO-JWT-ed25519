@@ -20,10 +20,7 @@ func (jwt *JWT) Validate(key ed25519.PublicKey) error {
 	}
 
 	// Encode header and content
-	header, err := encode(jwt.Header)
-	if err != nil {
-		return err
-	}
+	header := encodeHeader(jwt.Header)
 	content, err := encode(jwt.Content)
 	if err != nil {
 		return err

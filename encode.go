@@ -53,14 +53,11 @@ func (t *JWT) Encode() (result []byte, err error) {
 	if !setup {
 		return nil, errors.New("call setup with private key first")
 	}
-	content, err := encode(&t.Content)
+	content, err := encode(t.Content)
 	if err != nil {
 		return
 	}
-	header, err := encode(&t.Header)
-	if err != nil {
-		return
-	}
+	header := encodeHeader(t.Header)
 	hash := b64encode(ed25519.Sign(privateKey, join(header, content)))
 	result = join(header, content, hash)
 	return
@@ -79,6 +76,11 @@ func encode(data interface{}) (out []byte, err error) {
 	}
 	out = b64encode(json)
 	return
+}
+
+func encodeHeader(h Header) []byte {
+	enc, _ := encode(h) // Error is safe to ignore as encoding a struct containing only strings can't fail
+	return enc
 }
 
 func join(b ...[]byte) (result []byte) {
