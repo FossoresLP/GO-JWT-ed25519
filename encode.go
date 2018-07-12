@@ -4,27 +4,47 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"reflect"
 
 	"golang.org/x/crypto/ed25519"
 )
 
 // New returns a new JWT containing content
-func New(content interface{}) JWT {
-	return JWT{Header{Alg: "ed25519", Typ: "JWT"}, content, nil}
+// Content has to be either a struct or a map with string keys
+func New(content interface{}) (JWT, error) {
+	if (reflect.TypeOf(content).Kind() != reflect.Struct && reflect.TypeOf(content).Kind() != reflect.Map) || (reflect.TypeOf(content).Kind() == reflect.Map && reflect.TypeOf(content).Key().Kind() != reflect.String) {
+		return JWT{}, errors.New("content has to be map[string] or a struct")
+	}
+	return JWT{Header{Alg: "ed25519", Typ: "JWT"}, content, nil}, nil
 }
 
 // NewWithKeyID returns a new JWT containing content with key ID inserted into the header
-func NewWithKeyID(content interface{}, keyID string) (out JWT) {
-	out = New(content)
+func NewWithKeyID(content interface{}, keyID string) (out JWT, err error) {
+	if keyID == "" {
+		return out, errors.New("empty key IDs are not supported")
+	}
+	out, err = New(content)
+	if err != nil {
+		return
+	}
 	out.Header.Kid = keyID
 	return
 }
 
 // NewWithKeyIDAndKeyURL returns a new JWT containing content with key ID and key URL inserted into the header
-func NewWithKeyIDAndKeyURL(content interface{}, keyID, keyURL string) (out JWT) {
-	out = New(content)
-	out.Header.Kid = keyID
+func NewWithKeyIDAndKeyURL(content interface{}, keyID, keyURL string) (out JWT, err error) {
+	if keyID == "" {
+		return out, errors.New("empty key IDs are not supported")
+	}
+	if len(keyURL) < 13 || keyURL[:8] != "https://" {
+		return out, errors.New("valid URL with HTTPS required")
+	}
+	out, err = New(content)
+	if err != nil {
+		return
+	}
 	out.Header.Jku = keyURL
+	out.Header.Kid = keyID
 	return
 }
 
