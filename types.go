@@ -4,6 +4,8 @@ package jwt
 type Header struct {
 	Typ string `json:"typ"`
 	Alg string `json:"alg"`
+	Kid string `json:"kid,omitempty"`
+	Jku string `json:"jku,omitempty"`
 }
 
 // JWT contains the header and content of a JSON web token as well booleans indicating the validity of the token

@@ -111,14 +111,14 @@ func TestValidation(t *testing.T) {
 	}
 
 	// Check that validation fails if token is not JWT
-	token := JWT{Header{"token", "none"}, nil, nil}
+	token := JWT{Header{Typ: "token", Alg: "none"}, nil, nil}
 	err = token.Validate(publicKey)
 	if err == nil || err.Error() != "header indicates token is not JWT" {
 		t.Fatalf("Failed to detect token is not JWT")
 	}
 
 	// Check that validation fails for unsupported algorithms
-	token = JWT{Header{"JWT", "none"}, nil, nil}
+	token = JWT{Header{Typ: "JWT", Alg: "none"}, nil, nil}
 	err = token.Validate(publicKey)
 	if err == nil {
 		t.Fatalf("Failed to detect unsupported algorithm")
@@ -135,12 +135,12 @@ func TestValidation(t *testing.T) {
 	}
 
 	// Check that validation succeeds with unsupported content
-	token = JWT{Header{"JWT", "ed25519"}, "Hello world!", nil}
+	token = JWT{Header{Typ: "JWT", Alg: "ed25519"}, "Hello world!", nil}
 	err = token.Validate(publicKey)
 	if err != nil {
 		t.Fatalf("Validation with unsupported content failed instead of ignoring content: %s", err.Error())
 	}
-	token = JWT{Header{"JWT", "ed25519"}, 1234567890, nil}
+	token = JWT{Header{Typ: "JWT", Alg: "ed25519"}, 1234567890, nil}
 	err = token.Validate(publicKey)
 	if err != nil {
 		t.Fatalf("Validation with unsupported content failed instead of ignoring content: %s", err.Error())
