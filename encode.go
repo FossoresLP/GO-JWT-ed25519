@@ -8,9 +8,18 @@ import (
 	"golang.org/x/crypto/ed25519"
 )
 
-// New JWT for the subject
+// New returns a new JWT containing content
 func New(content interface{}) JWT {
 	return JWT{Header{Alg: "ed25519", Typ: "JWT"}, content, nil}
+}
+
+// NewWithKeyID returns a new JWT containing content with key ID inserted into the header
+func NewWithKeyID(content interface{}, keyID string) JWT {
+	return JWT{Header{Alg: "ed25519", Typ: "JWT", Kid: keyID}, content, nil}
+}
+
+func NewWithKeyIDAndKeyURL(content interface{}, keyID, keyURL string) JWT {
+	return JWT{Header{Alg: "ed25519", Typ: "JWT", Kid: keyID, Jku: keyURL}, content, nil}
 }
 
 // Encode a JWT to a byte slice

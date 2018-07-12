@@ -78,3 +78,66 @@ func Test_b64encode(t *testing.T) {
 		})
 	}
 }
+
+func TestNew(t *testing.T) {
+	type args struct {
+		content interface{}
+	}
+	tests := []struct {
+		name string
+		args args
+		want JWT
+	}{
+		{"Normal", args{"test"}, JWT{Header{Typ: "JWT", Alg: "ed25519"}, "test", nil}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := New(tt.args.content); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("New() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNewWithKeyID(t *testing.T) {
+	type args struct {
+		content interface{}
+		keyID   string
+	}
+	tests := []struct {
+		name string
+		args args
+		want JWT
+	}{
+		{"Normal", args{"test", "unique_key_id"}, JWT{Header{Typ: "JWT", Alg: "ed25519", Kid: "unique_key_id"}, "test", nil}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewWithKeyID(tt.args.content, tt.args.keyID); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewWithKeyID() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNewWithKeyIDAndKeyURL(t *testing.T) {
+	type args struct {
+		content interface{}
+		keyID   string
+		keyURL  string
+	}
+	tests := []struct {
+		name string
+		args args
+		want JWT
+	}{
+		{"Normal", args{"test", "unique_key_id", "https://example.com/get_keys"}, JWT{Header{Typ: "JWT", Alg: "ed25519", Kid: "unique_key_id", Jku: "https://example.com/get_keys"}, "test", nil}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewWithKeyIDAndKeyURL(tt.args.content, tt.args.keyID, tt.args.keyURL); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewWithKeyIDAndKeyURL() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
