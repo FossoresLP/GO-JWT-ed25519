@@ -47,6 +47,13 @@ func TestEnc(t *testing.T) {
 	}
 	t.Log("Encoded JWT: " + string(enc) + "\n")
 	token = enc
+	jwt = JWT{Header{Typ: "JWT", Alg: "EdDSA"}, func(test int) bool {
+		return test == 20
+	}, nil}
+	_, err = jwt.Encode()
+	if err == nil {
+		t.Fatal("JSON encoder accepted function")
+	}
 }
 
 func TestDec(t *testing.T) {
@@ -58,42 +65,6 @@ func TestDec(t *testing.T) {
 	m := decoded.Content.(map[string]interface{})
 	if m["test1"] != "Hello world" {
 		t.Fatal("Decoded content does not match original token")
-	}
-	dec, err = Decode("A.B")
-	if err == nil || err.Error() != "invalid token" {
-		t.Fatalf("Token with wrong section count was accepted")
-	}
-	dec, err = Decode("A")
-	if err == nil || err.Error() != "invalid token" {
-		t.Fatalf("Token with wrong section count was accepted")
-	}
-	dec, err = Decode("A.B.C.D")
-	if err == nil || err.Error() != "invalid token" {
-		t.Fatalf("Token with wrong section count was accepted")
-	}
-	dec, err = Decode("A._._")
-	if err == nil {
-		t.Fatalf("Invalid base64 data accepted when decoding header")
-	}
-	dec, err = Decode("YQ._._")
-	if err == nil {
-		t.Fatalf("Invalid JSON accepted when decoding header")
-	}
-	dec, err = Decode("eyJ0eXAiOiAiSldUIiwgImFsZyI6ICJlZDI1NTE5In0.A._")
-	if err == nil {
-		t.Fatalf("Invalid base64 data accepted when decoding content")
-	}
-	dec, err = Decode("eyJ0eXAiOiAiSldUIiwgImFsZyI6ICJlZDI1NTE5In0.YQ._")
-	if err == nil {
-		t.Fatalf("Invalid JSON accepted when decoding content")
-	}
-	dec, err = Decode("eyJ0eXAiOiAiSldUIiwgImFsZyI6ICJlZDI1NTE5In0.IkhlbGxvIHdvcmxkISI.A")
-	if err == nil {
-		t.Fatalf("Invalid base64 data accepted when decoding hash")
-	}
-	dec, err = Decode("eyJ0eXAiOiAiSldUIiwgImFsZyI6ICJlZDI1NTE5In0.IkhlbGxvIHdvcmxkISI.")
-	if err == nil {
-		t.Fatalf("Empty hash accepted: %v", dec.Hash)
 	}
 }
 
@@ -168,5 +139,14 @@ func TestValidation(t *testing.T) {
 	err = dec.Validate(publicKey)
 	if err == nil || err.Error() != "jwt is not valid, yet" {
 		t.Fatalf("Validate missed that token is not valid, yet")
+	}
+
+	// Check error handling for function as content
+	functionToken := JWT{Header{Typ: "JWT", Alg: "EdDSA"}, func(test int) bool {
+		return test == 20
+	}, nil}
+	err = functionToken.Validate(publicKey)
+	if err == nil {
+		t.Fatal("JSON encoder accepted function")
 	}
 }

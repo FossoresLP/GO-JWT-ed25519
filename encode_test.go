@@ -17,7 +17,9 @@ func Test_encode(t *testing.T) {
 	}{
 		{"String", args{"Hello world!"}, []byte("IkhlbGxvIHdvcmxkISI"), false},
 		{"Map", args{map[string]string{"name": "test", "use": "testing"}}, []byte("eyJuYW1lIjoidGVzdCIsInVzZSI6InRlc3RpbmcifQ"), false},
-		//{"ShouldFail", args{nil}, nil, true}, //Find something that could make the JSON encoder fail
+		{"ShouldFail", args{func(test int) bool {
+			return test == 20
+		}}, nil, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
