@@ -43,10 +43,10 @@ Usage
 Creating a JWT is quite easy. You just have to supply your content and this package will generate a JWT for you. New will return an error when an unsupported content type is used. Supported content types are structs and maps with strings as keys.
 
 ```go
-jwt.New(content Interface) (JWT, error)
+jwt.New(content interface{}) (JWT, error)
 ```
 
-There are two additional functions, `jwt.NewWithKeyID()` and `jwt.NewWithKeyIDAndKeyURL()`. Use these if you want to set a key ID (`kid`) or a key URL (`jku`) upon creation of the token. I will release a package for securely managing keys in a environment with many nodes and distributing them internally as well as to third parties.
+There are two additional functions, `jwt.NewWithKeyID(content interface{}, keyID string)` and `jwt.NewWithKeyIDAndKeyURL(content interface{}, keyID, keyURL string)` (`keyURL` has to be a https link). Use these if you want to set a key ID (`kid`) or a key URL (`jku`) upon creation of the token. I will release a package for securely managing keys in a environment with many nodes and distributing them internally as well as to third parties.
 
 ### Encoding a JWT
 
