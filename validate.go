@@ -15,7 +15,7 @@ func (jwt *JWT) Validate(key ed25519.PublicKey) error {
 	if jwt.Header.Typ != "JWT" { // Check could be moved to decoding as other tokens should not be decoded
 		return errors.New("header indicates token is not JWT")
 	}
-	if jwt.Header.Alg != "ed25519" {
+	if jwt.Header.Alg != "EdDSA" {
 		return fmt.Errorf("could not validate JWT - algorithm %s not supported", jwt.Header.Alg)
 	}
 

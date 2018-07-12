@@ -25,6 +25,10 @@ func Decode(token string) (data JWT, err error) {
 	if err != nil {
 		return
 	}
+	if data.Header.Typ != "JWT" {
+		err = errors.New("header suggests token is not a JWT")
+		return
+	}
 
 	// Decode second section to content
 	contentData, err := base64.RawURLEncoding.DecodeString(sections[1])

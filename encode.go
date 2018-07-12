@@ -15,7 +15,7 @@ func New(content interface{}) (JWT, error) {
 	if (reflect.TypeOf(content).Kind() != reflect.Struct && reflect.TypeOf(content).Kind() != reflect.Map) || (reflect.TypeOf(content).Kind() == reflect.Map && reflect.TypeOf(content).Key().Kind() != reflect.String) {
 		return JWT{}, errors.New("content has to be map[string] or a struct")
 	}
-	return JWT{Header{Alg: "ed25519", Typ: "JWT"}, content, nil}, nil
+	return JWT{Header{Alg: "EdDSA", Typ: "JWT"}, content, nil}, nil
 }
 
 // NewWithKeyID returns a new JWT containing content with key ID inserted into the header

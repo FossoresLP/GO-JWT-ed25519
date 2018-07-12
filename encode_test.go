@@ -89,12 +89,12 @@ func TestNew(t *testing.T) {
 		want    JWT
 		wantErr bool
 	}{
-		{"Normal", args{map[string]interface{}{"test": "normal"}}, JWT{Header{Typ: "JWT", Alg: "ed25519"}, map[string]interface{}{"test": "normal"}, nil}, false},
+		{"Normal", args{map[string]interface{}{"test": "normal"}}, JWT{Header{Typ: "JWT", Alg: "EdDSA"}, map[string]interface{}{"test": "normal"}, nil}, false},
 		{"ContentString", args{"test"}, JWT{}, true},
 		{"ContentInt", args{123456789}, JWT{}, true},
 		{"ContentIntMap", args{map[int]string{123: "test"}}, JWT{}, true},
-		{"ContentStringMapOfStrings", args{map[string]string{"test": "normal"}}, JWT{Header{Typ: "JWT", Alg: "ed25519"}, map[string]string{"test": "normal"}, nil}, false},
-		{"ContentStruct", args{Header{Typ: "none", Alg: "none"}}, JWT{Header{Typ: "JWT", Alg: "ed25519"}, Header{Typ: "none", Alg: "none"}, nil}, false},
+		{"ContentStringMapOfStrings", args{map[string]string{"test": "normal"}}, JWT{Header{Typ: "JWT", Alg: "EdDSA"}, map[string]string{"test": "normal"}, nil}, false},
+		{"ContentStruct", args{Header{Typ: "none", Alg: "none"}}, JWT{Header{Typ: "JWT", Alg: "EdDSA"}, Header{Typ: "none", Alg: "none"}, nil}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -121,7 +121,7 @@ func TestNewWithKeyID(t *testing.T) {
 		wantOut JWT
 		wantErr bool
 	}{
-		{"Normal", args{map[string]interface{}{"test": "normal"}, "unique_key_id"}, JWT{Header{Typ: "JWT", Alg: "ed25519", Kid: "unique_key_id"}, map[string]interface{}{"test": "normal"}, nil}, false},
+		{"Normal", args{map[string]interface{}{"test": "normal"}, "unique_key_id"}, JWT{Header{Typ: "JWT", Alg: "EdDSA", Kid: "unique_key_id"}, map[string]interface{}{"test": "normal"}, nil}, false},
 		{"InvalidContent", args{"test", "unique_key_id"}, JWT{}, true},
 		{"InvalidKeyID", args{map[string]interface{}{"test": "normal"}, ""}, JWT{}, true},
 	}
@@ -151,7 +151,7 @@ func TestNewWithKeyIDAndKeyURL(t *testing.T) {
 		wantOut JWT
 		wantErr bool
 	}{
-		{"Normal", args{map[string]interface{}{"test": "normal"}, "unique_key_id", "https://example.com/get_keys"}, JWT{Header{Typ: "JWT", Alg: "ed25519", Kid: "unique_key_id", Jku: "https://example.com/get_keys"}, map[string]interface{}{"test": "normal"}, nil}, false},
+		{"Normal", args{map[string]interface{}{"test": "normal"}, "unique_key_id", "https://example.com/get_keys"}, JWT{Header{Typ: "JWT", Alg: "EdDSA", Kid: "unique_key_id", Jku: "https://example.com/get_keys"}, map[string]interface{}{"test": "normal"}, nil}, false},
 		{"ContentInvalid", args{"test", "unique_key_id", "https://example.com/get_keys"}, JWT{}, true},
 		{"EmptyKeyIDNotAllowed", args{map[string]interface{}{"test": "normal"}, "", "https://example.com/get_keys"}, JWT{}, true},
 		{"KeyURLTooShort", args{map[string]interface{}{"test": "normal"}, "unique_key_id", "https://a.b"}, JWT{}, true},

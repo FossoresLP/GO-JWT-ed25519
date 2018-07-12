@@ -30,7 +30,7 @@ func TestSetup(t *testing.T) {
 }
 
 func TestEnc(t *testing.T) {
-	jwt := JWT{Header{Typ: "JWT", Alg: "ed25519"}, map[string]interface{}{"test1": "Hello world", "test2": "Testing", "exp": time.Now().Add(10 * time.Minute), "nbf": time.Now()}, nil}
+	jwt := JWT{Header{Typ: "JWT", Alg: "EdDSA"}, map[string]interface{}{"test1": "Hello world", "test2": "Testing", "exp": time.Now().Add(10 * time.Minute), "nbf": time.Now()}, nil}
 	_, err := jwt.Encode()
 	if err == nil || err.Error() != "call setup with private key first" {
 		t.Fatalf("Encode should fail due to missing private key")
@@ -129,19 +129,19 @@ func TestValidation(t *testing.T) {
 	}
 
 	// Check that validation succeeds with unsupported content
-	token = JWT{Header{Typ: "JWT", Alg: "ed25519"}, "Hello world!", nil}
+	token = JWT{Header{Typ: "JWT", Alg: "EdDSA"}, "Hello world!", nil}
 	err = token.Validate(publicKey)
 	if err != nil {
 		t.Fatalf("Validation with unsupported content failed instead of ignoring content: %s", err.Error())
 	}
-	token = JWT{Header{Typ: "JWT", Alg: "ed25519"}, 1234567890, nil}
+	token = JWT{Header{Typ: "JWT", Alg: "EdDSA"}, 1234567890, nil}
 	err = token.Validate(publicKey)
 	if err != nil {
 		t.Fatalf("Validation with unsupported content failed instead of ignoring content: %s", err.Error())
 	}
 
 	// Check validation of expiry
-	expiredToken := JWT{Header{Typ: "JWT", Alg: "ed25519"}, map[string]interface{}{"exp": time.Now().Add(-10 * time.Minute).UTC().Unix()}, nil}
+	expiredToken := JWT{Header{Typ: "JWT", Alg: "EdDSA"}, map[string]interface{}{"exp": time.Now().Add(-10 * time.Minute).UTC().Unix()}, nil}
 	enc, err := expiredToken.Encode()
 	if err != nil {
 		t.Fatalf("Failed to encode token to validate expiry: %s", err.Error())
@@ -156,7 +156,7 @@ func TestValidation(t *testing.T) {
 	}
 
 	// Check validation of not before
-	nbfToken := JWT{Header{Typ: "JWT", Alg: "ed25519"}, map[string]interface{}{"nbf": time.Now().Add(10 * time.Minute).UTC().Unix()}, nil}
+	nbfToken := JWT{Header{Typ: "JWT", Alg: "EdDSA"}, map[string]interface{}{"nbf": time.Now().Add(10 * time.Minute).UTC().Unix()}, nil}
 	enc, err = nbfToken.Encode()
 	if err != nil {
 		t.Fatalf("Failed to encode token to validate not before: %s", err.Error())
