@@ -7,9 +7,13 @@ EdDSA JWT using Ed25519 in Golang
 [![Licensed under: Boost Software License](https://img.shields.io/badge/style-BSL--1.0-red.svg?longCache=true&style=flat-square&label=License)](https://github.com/FossoresLP/GO-JWT-ed25519/blob/master/LICENSE.md)
 [![GoDoc](https://img.shields.io/badge/style-reference-blue.svg?longCache=true&style=flat-square&label=GoDoc)](https://godoc.org/github.com/FossoresLP/GO-JWT-ed25519)
 
-This packages implements JSON Web Token as defined in [RFC 7519](https://tools.ietf.org/html/rfc7519) in Go using [Ed25519](golang.org/x/crypto/ed25519)
+This packages implements JSON Web Token as defined in [RFC 7519](https://tools.ietf.org/html/rfc7519) in Go using [Ed25519](golang.org/x/crypto/ed25519).
 
-Important: This package is not fully compliant with RFC 7519 (JWT) and RFC 7515 (JWS) due to not implementing default signature algorithms. It is able to decode all JWTs that adhere to the standard but can only validate tokens using EdDSA with Ed25519 keys
+I'd like to implement Ed448 at some point but there is currently no stable Go implementation to build upon.
+
+Important: This package is not fully compliant with RFC 7519 (JWT) and RFC 7515 (JWS) due to not implementing default signature algorithms. It is able to decode all JWTs that adhere to the standard but can only validate tokens using EdDSA with Ed25519 keys.
+
+This package may now be considered stable. Any future changes will be made with backwards compatibility in mind and should never break anything.
 
 Data structures
 ---------------
@@ -41,6 +45,8 @@ Creating a JWT is quite easy. You just have to supply your content and this pack
 ```go
 jwt.New(content Interface) (JWT, error)
 ```
+
+There are two additional functions, `jwt.NewWithKeyID()` and `jwt.NewWithKeyIDAndKeyURL()`. Use these if you want to set a key ID (`kid`) or a key URL (`jku`) upon creation of the token. I will release a package for securely managing keys in a environment with many nodes and distributing them internally as well as to third parties.
 
 ### Encoding a JWT
 
