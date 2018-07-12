@@ -84,15 +84,26 @@ func TestNew(t *testing.T) {
 		content interface{}
 	}
 	tests := []struct {
-		name string
-		args args
-		want JWT
+		name    string
+		args    args
+		want    JWT
+		wantErr bool
 	}{
-		{"Normal", args{"test"}, JWT{Header{Typ: "JWT", Alg: "ed25519"}, "test", nil}},
+		{"Normal", args{map[string]interface{}{"test": "normal"}}, JWT{Header{Typ: "JWT", Alg: "ed25519"}, map[string]interface{}{"test": "normal"}, nil}, false},
+		{"ContentString", args{"test"}, JWT{}, true},
+		{"ContentInt", args{123456789}, JWT{}, true},
+		{"ContentIntMap", args{map[int]string{123: "test"}}, JWT{}, true},
+		{"ContentStringMapOfStrings", args{map[string]string{"test": "normal"}}, JWT{Header{Typ: "JWT", Alg: "ed25519"}, map[string]string{"test": "normal"}, nil}, false},
+		{"ContentStruct", args{Header{Typ: "none", Alg: "none"}}, JWT{Header{Typ: "JWT", Alg: "ed25519"}, Header{Typ: "none", Alg: "none"}, nil}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := New(tt.args.content); !reflect.DeepEqual(got, tt.want) {
+			got, err := New(tt.args.content)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("New() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("New() = %v, want %v", got, tt.want)
 			}
 		})
@@ -105,16 +116,24 @@ func TestNewWithKeyID(t *testing.T) {
 		keyID   string
 	}
 	tests := []struct {
-		name string
-		args args
-		want JWT
+		name    string
+		args    args
+		wantOut JWT
+		wantErr bool
 	}{
-		{"Normal", args{"test", "unique_key_id"}, JWT{Header{Typ: "JWT", Alg: "ed25519", Kid: "unique_key_id"}, "test", nil}},
+		{"Normal", args{map[string]interface{}{"test": "normal"}, "unique_key_id"}, JWT{Header{Typ: "JWT", Alg: "ed25519", Kid: "unique_key_id"}, map[string]interface{}{"test": "normal"}, nil}, false},
+		{"InvalidContent", args{"test", "unique_key_id"}, JWT{}, true},
+		{"InvalidKeyID", args{map[string]interface{}{"test": "normal"}, ""}, JWT{}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewWithKeyID(tt.args.content, tt.args.keyID); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewWithKeyID() = %v, want %v", got, tt.want)
+			gotOut, err := NewWithKeyID(tt.args.content, tt.args.keyID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("NewWithKeyID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotOut, tt.wantOut) {
+				t.Errorf("NewWithKeyID() = %v, want %v", gotOut, tt.wantOut)
 			}
 		})
 	}
@@ -127,16 +146,26 @@ func TestNewWithKeyIDAndKeyURL(t *testing.T) {
 		keyURL  string
 	}
 	tests := []struct {
-		name string
-		args args
-		want JWT
+		name    string
+		args    args
+		wantOut JWT
+		wantErr bool
 	}{
-		{"Normal", args{"test", "unique_key_id", "https://example.com/get_keys"}, JWT{Header{Typ: "JWT", Alg: "ed25519", Kid: "unique_key_id", Jku: "https://example.com/get_keys"}, "test", nil}},
+		{"Normal", args{map[string]interface{}{"test": "normal"}, "unique_key_id", "https://example.com/get_keys"}, JWT{Header{Typ: "JWT", Alg: "ed25519", Kid: "unique_key_id", Jku: "https://example.com/get_keys"}, map[string]interface{}{"test": "normal"}, nil}, false},
+		{"ContentInvalid", args{"test", "unique_key_id", "https://example.com/get_keys"}, JWT{}, true},
+		{"EmptyKeyIDNotAllowed", args{map[string]interface{}{"test": "normal"}, "", "https://example.com/get_keys"}, JWT{}, true},
+		{"KeyURLTooShort", args{map[string]interface{}{"test": "normal"}, "unique_key_id", "https://a.b"}, JWT{}, true},
+		{"KeyURLMustBeHTTPS", args{map[string]interface{}{"test": "normal"}, "unique_key_id", "ftps://example.com/get_keys"}, JWT{}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewWithKeyIDAndKeyURL(tt.args.content, tt.args.keyID, tt.args.keyURL); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewWithKeyIDAndKeyURL() = %v, want %v", got, tt.want)
+			gotOut, err := NewWithKeyIDAndKeyURL(tt.args.content, tt.args.keyID, tt.args.keyURL)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("NewWithKeyIDAndKeyURL() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotOut, tt.wantOut) {
+				t.Errorf("NewWithKeyIDAndKeyURL() = %v, want %v", gotOut, tt.wantOut)
 			}
 		})
 	}

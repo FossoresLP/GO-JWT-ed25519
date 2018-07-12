@@ -11,7 +11,6 @@ import (
 var token []byte
 var decoded JWT
 var publicKey ed25519.PublicKey
-var content map[string]interface{}
 
 func TestSetup(t *testing.T) {
 	_, key, err := ed25519.GenerateKey(nil)
@@ -31,12 +30,7 @@ func TestSetup(t *testing.T) {
 }
 
 func TestEnc(t *testing.T) {
-	content = make(map[string]interface{})
-	content["test1"] = "Hello world"
-	content["test2"] = "Testing"
-	content["exp"] = time.Now().Add(10 * time.Minute)
-	content["nbf"] = time.Now()
-	jwt := New(content)
+	jwt := JWT{Header{Typ: "JWT", Alg: "ed25519"}, map[string]interface{}{"test1": "Hello world", "test2": "Testing", "exp": time.Now().Add(10 * time.Minute), "nbf": time.Now()}, nil}
 	_, err := jwt.Encode()
 	if err == nil || err.Error() != "call setup with private key first" {
 		t.Fatalf("Encode should fail due to missing private key")
@@ -62,7 +56,7 @@ func TestDec(t *testing.T) {
 	}
 	decoded = dec
 	m := decoded.Content.(map[string]interface{})
-	if m["test1"] != content["test1"] {
+	if m["test1"] != "Hello world" {
 		t.Fatal("Decoded content does not match original token")
 	}
 	dec, err = Decode("A.B")
@@ -147,9 +141,7 @@ func TestValidation(t *testing.T) {
 	}
 
 	// Check validation of expiry
-	expired := make(map[string]interface{})
-	expired["exp"] = time.Now().Add(-10 * time.Minute).UTC().Unix()
-	expiredToken := New(expired)
+	expiredToken := JWT{Header{Typ: "JWT", Alg: "ed25519"}, map[string]interface{}{"exp": time.Now().Add(-10 * time.Minute).UTC().Unix()}, nil}
 	enc, err := expiredToken.Encode()
 	if err != nil {
 		t.Fatalf("Failed to encode token to validate expiry: %s", err.Error())
@@ -164,9 +156,7 @@ func TestValidation(t *testing.T) {
 	}
 
 	// Check validation of not before
-	nbf := make(map[string]interface{})
-	nbf["nbf"] = time.Now().Add(10 * time.Minute).UTC().Unix()
-	nbfToken := New(nbf)
+	nbfToken := JWT{Header{Typ: "JWT", Alg: "ed25519"}, map[string]interface{}{"nbf": time.Now().Add(10 * time.Minute).UTC().Unix()}, nil}
 	enc, err = nbfToken.Encode()
 	if err != nil {
 		t.Fatalf("Failed to encode token to validate not before: %s", err.Error())
