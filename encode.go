@@ -18,6 +18,7 @@ func NewWithKeyID(content interface{}, keyID string) JWT {
 	return JWT{Header{Alg: "ed25519", Typ: "JWT", Kid: keyID}, content, nil}
 }
 
+// NewWithKeyIDAndKeyURL returns a new JWT containing content with key ID and key URL inserted into the header
 func NewWithKeyIDAndKeyURL(content interface{}, keyID, keyURL string) JWT {
 	return JWT{Header{Alg: "ed25519", Typ: "JWT", Kid: keyID, Jku: keyURL}, content, nil}
 }
