@@ -14,13 +14,18 @@ func New(content interface{}) JWT {
 }
 
 // NewWithKeyID returns a new JWT containing content with key ID inserted into the header
-func NewWithKeyID(content interface{}, keyID string) JWT {
-	return JWT{Header{Alg: "ed25519", Typ: "JWT", Kid: keyID}, content, nil}
+func NewWithKeyID(content interface{}, keyID string) (out JWT) {
+	out = New(content)
+	out.Header.Kid = keyID
+	return
 }
 
 // NewWithKeyIDAndKeyURL returns a new JWT containing content with key ID and key URL inserted into the header
-func NewWithKeyIDAndKeyURL(content interface{}, keyID, keyURL string) JWT {
-	return JWT{Header{Alg: "ed25519", Typ: "JWT", Kid: keyID, Jku: keyURL}, content, nil}
+func NewWithKeyIDAndKeyURL(content interface{}, keyID, keyURL string) (out JWT) {
+	out = New(content)
+	out.Header.Kid = keyID
+	out.Header.Jku = keyURL
+	return
 }
 
 // Encode a JWT to a byte slice
