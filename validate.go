@@ -11,6 +11,10 @@ import (
 
 // Validate returns an error when the hash does not match the content
 func (jwt *JWT) Validate(key ed25519.PublicKey) error {
+	// Make sure the key is actually valid
+	if len(key) != ed25519.PublicKeySize {
+		return errors.New("key is not a valid public key")
+	}
 	// Check token type and algorithm
 	if jwt.Header.Typ != "JWT" { // Check could be moved to decoding as other tokens should not be decoded
 		return errors.New("header indicates token is not JWT")

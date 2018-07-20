@@ -73,4 +73,4 @@ When decoding a JWT, it is not automatically validated. You will have to call `V
 yourjwt.Validate(key ed25519.PublicKey) (error)
 ```
 
-Keep in mind that this function only validates the hash and checks if the token is valid an the current point in time if `exp` and/or `nbf` are set.
+Keep in mind that this function only validates the hash and checks if the token is valid at the current point in time if `exp` and/or `nbf` are set.

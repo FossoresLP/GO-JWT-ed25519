@@ -75,8 +75,15 @@ func TestValidation(t *testing.T) {
 		t.Fatalf("Failed to validate JWT: %s", err.Error())
 	}
 
+	// Check that an invalid public key does not cause a panic
+	token := JWT{Header{}, nil, nil}
+	err = token.Validate([]byte("Hello world!"))
+	if err == nil || err.Error() != "key is not a valid public key" {
+		t.Fatalf("Failed to detect public key is not valid")
+	}
+
 	// Check that validation fails if token is not JWT
-	token := JWT{Header{Typ: "token", Alg: "none"}, nil, nil}
+	token = JWT{Header{Typ: "token", Alg: "none"}, nil, nil}
 	err = token.Validate(publicKey)
 	if err == nil || err.Error() != "header indicates token is not JWT" {
 		t.Fatalf("Failed to detect token is not JWT")
