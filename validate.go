@@ -39,12 +39,12 @@ func (jwt *JWT) Validate(key ed25519.PublicKey) error {
 	// Validate expiry and not before if they exist
 	if m, ok := jwt.Content.(map[string]interface{}); ok {
 		if exp, ok := m["exp"].(float64); ok {
-			if time.Unix(int64(math.Round(exp)), 0).Before(time.Now()) {
+			if time.Unix(int64(math.Round(exp)), 0).Before(time.Now().UTC()) {
 				return errors.New("jwt has expired")
 			}
 		}
 		if nbf, ok := m["nbf"].(float64); ok {
-			if time.Unix(int64(math.Round(nbf)), 0).After(time.Now()) {
+			if time.Unix(int64(math.Round(nbf)), 0).After(time.Now().UTC()) {
 				return errors.New("jwt is not valid, yet")
 			}
 		}
