@@ -156,4 +156,30 @@ func TestValidation(t *testing.T) {
 	if err == nil {
 		t.Fatal("JSON encoder accepted function")
 	}
+
+	// Check validation for a struct
+	testStruct := struct {
+		Test bool
+		Data int
+	}{
+		true,
+		42,
+	}
+	structToken := JWT{Header{Typ: "JWT", Alg: "EdDSA"}, testStruct, nil}
+	err = structToken.Validate(publicKey)
+	if err != nil {
+		t.Errorf("Failed to validate a token generated using a struct: %s", err.Error())
+	}
+	encodedStructToken, err := structToken.Encode()
+	if err != nil {
+		t.Errorf("Failed to encode struct token: %s", err.Error())
+	}
+	decodedStructToken, err := Decode(string(encodedStructToken))
+	if err != nil {
+		t.Errorf("Failed to decode struct token: %s", err.Error())
+	}
+	err = decodedStructToken.Validate(publicKey)
+	if err != nil {
+		t.Errorf("Failed to validate decoded struct token: %s", err.Error())
+	}
 }
