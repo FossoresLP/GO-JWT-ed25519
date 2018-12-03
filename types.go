@@ -8,7 +8,7 @@ type Header struct {
 	Jku string `json:"jku,omitempty"`
 }
 
-// JWT contains the header and content of a JSON web token as well booleans indicating the validity of the token
+// JWT contains the header and content of a JSON web token as well as the decoded hash
 type JWT struct {
 	Header  Header
 	Content interface{}
