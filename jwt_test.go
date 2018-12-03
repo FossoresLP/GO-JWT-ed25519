@@ -159,11 +159,11 @@ func TestValidation(t *testing.T) {
 
 	// Check validation for a struct
 	testStruct := struct {
-		Test bool
 		Data int
+		Test bool
 	}{
-		true,
 		42,
+		true,
 	}
 	structToken := JWT{Header{Typ: "JWT", Alg: "EdDSA"}, testStruct, nil}
 	err = structToken.Validate(publicKey)
