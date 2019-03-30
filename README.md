@@ -7,7 +7,10 @@ EdDSA JWT using Ed25519 in Golang
 [![Licensed under: Boost Software License](https://img.shields.io/badge/style-BSL--1.0-red.svg?longCache=true&style=flat-square&label=License)](https://github.com/FossoresLP/GO-JWT-ed25519/blob/master/LICENSE.md)
 [![GoDoc](https://img.shields.io/badge/style-reference-blue.svg?longCache=true&style=flat-square&label=GoDoc)](https://godoc.org/github.com/FossoresLP/GO-JWT-ed25519)
 
-**I'd like to encourage everyone interested in this project to take a look at my improved JWT implementation [go-jwt](https://github.com/FossoresLP/go-jwt). It has more features, is more secure and most importantly extensible. This project will therefore no longer be maintained. Use at your own discretion.**
+This package is deprecated in favor of [go-jwt](https://github.com/FossoresLP/go-jwt)
+=====================================================================================
+
+**Due to the issues this package has and it's limited scope I'd recommend to take a look at my improved JWT implementation [go-jwt](https://github.com/FossoresLP/go-jwt). It has more features, less bugs, is more secure and most importantly extensible. This project will no longer be maintained. Use at your own discretion.**
 
 This packages implements JSON Web Token as defined in [RFC 7519](https://tools.ietf.org/html/rfc7519) in Go using [Ed25519](golang.org/x/crypto/ed25519).
 
